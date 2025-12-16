@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypto Chart Analyzer</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+<header>
+<h1>Crypto Chart Analyzer</h1>
+<p class="subtitle">AI-powered technical analysis for crypto trading</p>
+</header>
+<main>
+<div class="upload-section">
+<div class="input-group">
+<label for="timeframe">Timeframe</label>
+<select id="timeframe">
+<option value="1m">1 Minute</option>
+<option value="5m">5 Minutes</option>
+<option value="15m">15 Minutes</option>
+<option value="30m">30 Minutes</option>
+<option value="1h" selected>1 Hour</option>
+<option value="4h">4 Hours</option>
+<option value="1d">1 Day</option>
+<option value="1w">1 Week</option>
+</select>
+</div>
+<div id="dropzone" class="dropzone">
+<input type="file" id="fileInput" accept="image/*" hidden>
+<div class="dropzone-content">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+<polyline points="17 8 12 3 7 8"></polyline>
+<line x1="12" y1="3" x2="12" y2="15"></line>
+</svg>
+<p class="dropzone-text">Drag & drop your chart image</p>
+<p class="dropzone-subtext">or click to browse</p>
+<p class="dropzone-hint">PNG, JPG, WEBP up to 10MB</p>
+</div>
+<div id="preview" class="preview hidden">
+<img id="previewImg" src="" alt="Chart preview">
+<button id="removeBtn" class="remove-btn" type="button">×</button>
+</div>
+</div>
+<button id="analyzeBtn" class="analyze-btn" disabled>
+<span class="btn-text">Analyze Chart</span>
+<span class="btn-loader hidden"></span>
+</button>
+</div>
+<div id="results" class="results hidden">
+<div class="result-header"><h2>Analysis Results</h2></div>
+<div class="result-cards">
+<div class="card"><div class="card-label">Recommendation</div><div id="recommendation" class="card-value recommendation"></div></div>
+<div class="card"><div class="card-label">Certainty</div><div id="certainty" class="card-value certainty"></div></div>
+<div class="card"><div class="card-label">Risk/Reward</div><div id="riskReward" class="card-value"></div></div>
+<div class="card"><div class="card-label">Entry Price</div><div id="entryPrice" class="card-value"></div></div>
+<div class="card card-stop-loss"><div class="card-label">Stop Loss</div><div id="stopLoss" class="card-value stop-loss"></div></div>
+<div class="card card-take-profit"><div class="card-label">Take Profit</div><div id="takeProfit" class="card-value take-profit"></div></div>
+</div>
+<div class="report-card"><h3>Detailed Analysis Report</h3><div id="report" class="report-content"></div></div>
+</div>
+<div id="error" class="error hidden"></div>
+</main>
+<footer><p>Powered by OpenRouter AI • Not financial advice</p></footer>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
