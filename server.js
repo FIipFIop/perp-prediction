@@ -1,8 +1,11 @@
 import express from 'express';
 import multer from 'multer';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -11,7 +14,7 @@ const upload = multer({
 });
 
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Analyze chart endpoint
 app.post('/api/analyze', upload.single('chart'), async (req, res) => {
@@ -79,5 +82,7 @@ app.post('/api/analyze', upload.single('chart'), async (req, res) => {
 });
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', apiConfigured: !!process.env.OPENROUTER_API_KEY }));
+
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 app.listen(process.env.PORT || 3000, () => console.log('🚀 Server running on port', process.env.PORT || 3000));

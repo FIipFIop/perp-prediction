@@ -8,7 +8,14 @@
       "Bash(taskkill:*)",
       "Bash(wc:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Crypto Chart Analyzer\n\nAI-powered crypto chart analysis tool with:\n- Drag & drop image upload\n- Technical analysis using OpenRouter AI\n- Trading recommendations (LONG/SHORT)\n- Entry, Stop Loss, and Take Profit levels\n- Risk/Reward ratio calculation\n- Clean, minimal Vercel-style UI\n- No database, fully stateless\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(gh repo create:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git remote remove:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
