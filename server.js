@@ -85,4 +85,8 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', apiConfigured: !!p
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-app.listen(process.env.PORT || 3000, () => console.log('🚀 Server running on port', process.env.PORT || 3000));
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(process.env.PORT || 3000, () => console.log('🚀 Server running on port', process.env.PORT || 3000));
+}
+
+export default app;
