@@ -528,10 +528,23 @@ Respond ONLY with valid JSON: {"recommendation":"LONG/SHORT","certainty":85,"ent
       })
     });
 
-    if (!response.ok) return res.status(response.status).json({ error: 'Failed to analyze chart' });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenRouter API error:', response.status, errorText);
+      return res.status(response.status).json({ error: 'Failed to analyze chart' });
+    }
 
-    const content = (await response.json()).choices[0]?.message?.content;
-    if (!content) return res.status(500).json({ error: 'No response from AI' });
+    const apiResponse = await response.json();
+    console.log('OpenRouter API response:', JSON.stringify(apiResponse).substring(0, 200));
+
+    const content = apiResponse.choices?.[0]?.message?.content;
+    if (!content) {
+      console.error('No content in API response:', apiResponse);
+      return res.status(500).json({
+        error: 'No response from AI',
+        message: 'The AI did not return a valid response. Please try again.'
+      });
+    }
 
     let analysis;
     try {
