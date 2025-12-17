@@ -25,15 +25,24 @@
 <div class="input-group">
 <label for="timeframe">Timeframe</label>
 <select id="timeframe">
+<option value="auto" selected>🤖 Auto Detect (Recommended)</option>
 <option value="1m">1 Minute</option>
 <option value="5m">5 Minutes</option>
 <option value="15m">15 Minutes</option>
 <option value="30m">30 Minutes</option>
-<option value="1h" selected>1 Hour</option>
+<option value="1h">1 Hour</option>
 <option value="4h">4 Hours</option>
 <option value="1d">1 Day</option>
 <option value="1w">1 Week</option>
+<option value="1M">1 Month</option>
 </select>
+</div>
+<div id="timeframeConfirm" class="timeframe-confirm hidden">
+<p class="confirm-text">Detected timeframe: <strong id="detectedTimeframe"></strong></p>
+<div class="confirm-buttons">
+<button type="button" id="confirmTimeframeBtn" class="confirm-btn">✓ Correct</button>
+<button type="button" id="changeTimeframeBtn" class="confirm-btn secondary">Change</button>
+</div>
 </div>
 <div id="dropzone" class="dropzone">
 <input type="file" id="fileInput" accept="image/*" hidden>

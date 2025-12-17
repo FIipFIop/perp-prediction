@@ -71,6 +71,16 @@ app.post('/api/analyze', upload.single('chart'), async (req, res) => {
 
     const imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
 
+    // Build AI prompt based on timeframe mode
+    const isAutoDetect = req.body.timeframe === 'auto';
+    const timeframeText = isAutoDetect
+      ? 'Determine the timeframe from the chart (look for labels, time intervals, or date ranges visible)'
+      : `${req.body.timeframe} timeframe`;
+
+    const prompt = isAutoDetect
+      ? `Analyze this crypto chart. First, detect what timeframe this chart is showing (1m, 5m, 15m, 30m, 1h, 4h, 1d, 1w, 1M, etc). This could be a candlestick chart OR a line/area chart (like from Phantom wallet). Look for time labels on the X-axis, date ranges, or candle spacing. Respond ONLY with valid JSON: {"timeframe":"detected timeframe","timeframeConfidence":"high/medium/low","chartType":"candlestick/line/area","recommendation":"LONG/SHORT","certainty":85,"entryPrice":"$X (desc)","stopLoss":"$X (-X%)","takeProfit":"$X (+X%)","riskRewardRatio":"X:1","report":"Detailed analysis with patterns, SL/TP justification"}. Min 2:1 R:R required.`
+      : `Analyze this ${req.body.timeframe} crypto chart. This could be a candlestick chart OR a line/area chart (like from Phantom wallet). Respond ONLY with valid JSON: {"recommendation":"LONG/SHORT","certainty":85,"entryPrice":"$X (desc)","stopLoss":"$X (-X%)","takeProfit":"$X (+X%)","riskRewardRatio":"X:1","report":"Detailed analysis with patterns, SL/TP justification"}. Min 2:1 R:R required.`;
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -83,7 +93,7 @@ app.post('/api/analyze', upload.single('chart'), async (req, res) => {
           role: 'user',
           content: [
             { type: 'image_url', image_url: { url: imageUrl } },
-            { type: 'text', text: `Analyze this ${req.body.timeframe} crypto chart. Respond ONLY with valid JSON: {"recommendation":"LONG/SHORT","certainty":85,"entryPrice":"$X (desc)","stopLoss":"$X (-X%)","takeProfit":"$X (+X%)","riskRewardRatio":"X:1","report":"Detailed analysis with patterns, SL/TP justification"}. Min 2:1 R:R required.` }
+            { type: 'text', text: prompt }
           ]
         }],
         temperature: 0.7,
@@ -119,7 +129,10 @@ app.post('/api/analyze', upload.single('chart'), async (req, res) => {
       stopLoss: analysis.stopLoss || 'Not specified',
       takeProfit: analysis.takeProfit || 'Not specified',
       riskRewardRatio: analysis.riskRewardRatio || 'N/A',
-      report: analysis.report || content
+      report: analysis.report || content,
+      timeframe: analysis.timeframe || req.body.timeframe,
+      timeframeConfidence: analysis.timeframeConfidence || 'high',
+      chartType: analysis.chartType || 'candlestick'
     });
 
   } catch (error) {

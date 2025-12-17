@@ -15,9 +15,15 @@ const previewImg = $('previewImg');
 const removeBtn = $('removeBtn');
 const analyzeBtn = $('analyzeBtn');
 const timeframe = $('timeframe');
+const timeframeConfirm = $('timeframeConfirm');
+const detectedTimeframe = $('detectedTimeframe');
+const confirmTimeframeBtn = $('confirmTimeframeBtn');
+const changeTimeframeBtn = $('changeTimeframeBtn');
 const results = $('results');
 const error = $('error');
 let selectedFile = null;
+let detectedTimeframeValue = null;
+let analysisData = null;
 
 // Apply Telegram theme
 document.body.style.backgroundColor = tg.themeParams.bg_color || '#000000';
@@ -81,6 +87,8 @@ removeBtn.addEventListener('click', e => {
     analyzeBtn.disabled = true;
     tg.MainButton.hide(); // Hide Telegram MainButton
     results.classList.add('hidden');
+    timeframeConfirm.classList.add('hidden');
+    analysisData = null;
 });
 
 // Telegram MainButton handler
@@ -126,6 +134,18 @@ async function analyzeChart() {
 analyzeBtn.addEventListener('click', analyzeChart);
 
 function displayResults(data) {
+    // Check if timeframe needs confirmation (auto mode with low/medium confidence)
+    if (timeframe.value === 'auto' && data.timeframe && data.timeframeConfidence !== 'high') {
+        analysisData = data;
+        detectedTimeframeValue = data.timeframe;
+        const chartTypeText = data.chartType !== 'candlestick' ? ` (${data.chartType} chart)` : '';
+        detectedTimeframe.textContent = `${formatTimeframe(data.timeframe)}${chartTypeText}`;
+        timeframeConfirm.classList.remove('hidden');
+        results.classList.add('hidden');
+        return;
+    }
+
+    // Display results normally
     $('recommendation').textContent = data.recommendation;
     $('recommendation').className = `card-value recommendation ${data.recommendation}`;
     $('certainty').textContent = data.certainty;
@@ -134,9 +154,38 @@ function displayResults(data) {
     $('stopLoss').textContent = data.stopLoss || 'N/A';
     $('takeProfit').textContent = data.takeProfit || 'N/A';
     $('report').textContent = data.report;
+
+    // Show chart type info if detected
+    if (data.chartType && data.chartType !== 'candlestick') {
+        $('report').textContent = `Chart Type: ${data.chartType}\nTimeframe: ${formatTimeframe(data.timeframe || timeframe.value)}\n\n${data.report}`;
+    }
+
+    timeframeConfirm.classList.add('hidden');
     results.classList.remove('hidden');
     setTimeout(() => results.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
 }
+
+function formatTimeframe(tf) {
+    const map = { '1m': '1 Minute', '5m': '5 Minutes', '15m': '15 Minutes', '30m': '30 Minutes',
+                  '1h': '1 Hour', '4h': '4 Hours', '1d': '1 Day', '1w': '1 Week', '1M': '1 Month' };
+    return map[tf] || tf;
+}
+
+// Timeframe confirmation handlers
+confirmTimeframeBtn.addEventListener('click', () => {
+    if (analysisData) {
+        tg.HapticFeedback.notificationOccurred('success');
+        displayResults(analysisData);
+    }
+});
+
+changeTimeframeBtn.addEventListener('click', () => {
+    timeframeConfirm.classList.add('hidden');
+    timeframe.value = '1h'; // Reset to default
+    timeframe.focus();
+    tg.HapticFeedback.impactOccurred('light');
+    showError('Please select the correct timeframe and analyze again.');
+});
 
 function showError(msg) { error.textContent = msg; error.classList.remove('hidden'); }
 function hideError() { error.classList.add('hidden'); }
