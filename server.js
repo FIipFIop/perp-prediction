@@ -3,6 +3,7 @@ import multer from 'multer';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 
 dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,12 +17,51 @@ const upload = multer({
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Telegram initData verification function
+function verifyTelegramWebAppData(initData, botToken) {
+  if (!initData || !botToken) return null;
+
+  try {
+    const urlParams = new URLSearchParams(initData);
+    const hash = urlParams.get('hash');
+    urlParams.delete('hash');
+
+    const dataCheckString = Array.from(urlParams.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, value]) => `${key}=${value}`)
+      .join('\n');
+
+    const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
+    const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
+
+    if (calculatedHash !== hash) return null;
+
+    // Parse user data
+    const userStr = urlParams.get('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch (error) {
+    console.error('Telegram verification error:', error);
+    return null;
+  }
+}
+
 // Analyze chart endpoint
 app.post('/api/analyze', upload.single('chart'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No chart image provided' });
     if (!req.body.timeframe) return res.status(400).json({ error: 'Timeframe is required' });
     if (!process.env.OPENROUTER_API_KEY) return res.status(500).json({ error: 'API key not configured' });
+
+    // Verify Telegram user (optional for web fallback)
+    let telegramUser = null;
+    if (req.body.initData && process.env.TELEGRAM_BOT_TOKEN) {
+      telegramUser = verifyTelegramWebAppData(req.body.initData, process.env.TELEGRAM_BOT_TOKEN);
+      if (!telegramUser) {
+        console.warn('Invalid Telegram initData, proceeding without auth');
+      } else {
+        console.log('Telegram user verified:', telegramUser.id, telegramUser.first_name);
+      }
+    }
 
     const imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
 
