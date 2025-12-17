@@ -7,6 +7,9 @@ tg.enableClosingConfirmation();
 const $ = id => document.getElementById(id);
 const dropzone = $('dropzone');
 const fileInput = $('fileInput');
+const cameraInput = $('cameraInput');
+const cameraBtn = $('cameraBtn');
+const galleryBtn = $('galleryBtn');
 const preview = $('preview');
 const previewImg = $('previewImg');
 const removeBtn = $('removeBtn');
@@ -20,8 +23,29 @@ let selectedFile = null;
 document.body.style.backgroundColor = tg.themeParams.bg_color || '#000000';
 document.body.style.color = tg.themeParams.text_color || '#ffffff';
 
-dropzone.addEventListener('click', e => { if (!e.target.closest('.remove-btn')) fileInput.click(); });
+// Dropzone click - don't trigger on mobile buttons or remove button
+dropzone.addEventListener('click', e => {
+  if (!e.target.closest('.remove-btn') && !e.target.closest('.mobile-btn')) {
+    fileInput.click();
+  }
+});
+
+// File input handlers
 fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+cameraInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+// Mobile button handlers
+cameraBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  cameraInput.click();
+  tg.HapticFeedback.impactOccurred('light');
+});
+
+galleryBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  fileInput.click();
+  tg.HapticFeedback.impactOccurred('light');
+});
 dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
 dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
 dropzone.addEventListener('drop', e => {
@@ -50,6 +74,7 @@ removeBtn.addEventListener('click', e => {
     e.stopPropagation();
     selectedFile = null;
     fileInput.value = '';
+    cameraInput.value = '';
     previewImg.src = '';
     preview.classList.add('hidden');
     document.querySelector('.dropzone-content').classList.remove('hidden');
