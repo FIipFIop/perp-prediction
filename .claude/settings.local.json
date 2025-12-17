@@ -15,7 +15,15 @@
       "Bash(git branch:*)",
       "Bash(git push:*)",
       "Bash(git remote remove:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(where:*)",
+      "Bash(node:*)",
+      "Bash(powershell -Command \"Get-Content public/icon-192.png -Encoding Byte -TotalCount 10 | ForEach-Object { ''{0:X2}'' -f $_}\")",
+      "Bash(move generate-icons.js generate-icons.cjs)",
+      "Bash(ren generate-icons.js generate-icons.cjs)",
+      "Bash(npm uninstall:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:perp-prediction.vercel.app)"
     ]
   }
 }
